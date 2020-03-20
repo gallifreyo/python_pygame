@@ -1,5 +1,7 @@
 background_image_filename = "wallpaper.jpg"
 ball_image_filename = "ball.png"
+#win_image_filename = "win.png"
+#loose_image_filename = "lose.png"
 
 import pygame
 from pygame.locals import *
@@ -7,32 +9,50 @@ from sys import exit
 
 pygame.init()
 
-def isColliding_Ball_Player(x,y):
-    pass
+#tamanho das raquetes
+xEntity = 80
+yEntity = 20
 
+# definindo o inimigo
+enemy = pygame.Rect(300, 5, xEntity, yEntity)
 
+# tamanho da bola
+txBall = 15
+tyBall = 15
 
+# posicao da bola
+ball_x = 320
+ball_y = 240
 
+# definindo a bola
+ball = pygame.Rect(ball_x, ball_y, txBall, tyBall)
 
+# posicao do player
+xPlayer = 200
+yPlayer = 455
 
+# definindo o player
+Player = pygame.Rect(xPlayer,yPlayer, xEntity, yEntity)
 
+WINDOW_WIDTH = 640
+WINDOW_HEIGHT = 480
 
-x = 200
-y = 455
+font = pygame.font.SysFont("arial", 80)
 
-player_skin = pygame.Surface((80,20))
-player_skin.fill((255,0,0))
-
-ball_x = 300
-ball_y = 300
-
-screen = pygame.display.set_mode((640, 480), 0, 32)
+screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), 0, 32)
 
 pygame.display.set_caption("PONG")
 
 background = pygame.image.load(background_image_filename).convert()
-ball = pygame.image.load(ball_image_filename).convert_alpha()
-ball = pygame.transform.scale(ball, (30,30))
+
+win = "YOU WIN"
+#pygame.image.load(win_image_filename).convert_alpha()
+loose = "YOU LOSE"
+#pygame.image.load(loose_image_filename).convert_alpha()
+
+text_surface_win = font.render(win, True, (255, 0, 0))
+
+text_surface_loose = font.render(loose, True, (255, 0, 0))
 
 clock = pygame.time.Clock()
 
@@ -41,13 +61,15 @@ LEFT = False
 
 my_direction = LEFT
 
-speed = 10
-speed_x, speed_y = 8, 8
+speed = 20
+
+speed_ball_x, speed_ball_y = 8, 8
 
 while True:
 
     clock.tick(60)
-
+    
+    ball.move_ip(speed_ball_x,speed_ball_y)
     
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -75,55 +97,88 @@ while True:
 
 
     if RIGHT == True:
-        x += speed
+        
+        #mov enemy
+        #enemy.move_ip(+speed,0)
+
+        #mov player
+        Player.move_ip(+speed,0)
+
+        
     if LEFT == True:
-        x -= speed
-    
-    if x > 640 - player_skin.get_width():
-        x = 552
-    if x < 5:
-        x = 5
 
-    ball_x += speed_x
-    ball_y += speed_y
-
-
-
-
-    
-
-    if ball_x > 640 - ball.get_width():
-        speed_x = -speed_x
-        ball_x = 640 - ball.get_width()
         
-    elif ball_x < 0:
-        speed_x = -speed_x
-        ball_x = 0
-
-    if ball_y > 550 - ball.get_height():
-        speed_y = -speed_y
-        ball_y = 480 - ball.get_height()
+        # mov enemy
+        #enemy.move_ip(-speed,0)
         
-    elif ball_y < 0:
-        speed_y = -speed_y
-        ball_y = 0
+        # mov player
+        Player.move_ip(-speed,0)
+
+    # IA simples enemy
+
+        #while enemy.right != ball.right:
+            
 
 
 
+        
+    # colisao do player -------------------------
+    if Player.right >= WINDOW_WIDTH:
+        Player.x = 552
+    if Player.x < 5:
+        Player.x = 5
 
-    if ball_y == 450:
+    # colisao do inimigo ------------------------
+    if enemy.right >= WINDOW_WIDTH:
+        enemy.x = 552
+    if enemy.left < 0:
+        enemy.left = 5
 
-        ball_x += speed_x
-        speed_y = -speed_y
-        print("colisao")
+    # colisao da bola ---------------------------
 
+    
+    if ball.right >= WINDOW_WIDTH:
+        speed_ball_x = -speed_ball_x
+        #ball.x = 640 - ball_x
+        
+        # essa merda inverte a posicao para o outro lado da parede
+        #ball.right = 640 - ball.x
+        
+    if ball.left <= 0:
+        speed_ball_x = -speed_ball_x
+        #ball.x = 0
 
+    if ball.top <= 0:
+        #speed_ball_y = -speed_ball_y
+        #ball.y = 0
+        background.blit(text_surface_win, (140,100))
+       
+
+    if ball.bottom >= WINDOW_HEIGHT:
+        #speed_ball_y = -speed_ball_y
+        #ball.y = 480 - ball_y
+        background.blit(text_surface_loose, (120,100))
+        
+    
+    # verificando colisoes de raquetes com a bola
+
+    if Player.colliderect(ball):
+        speed_ball_y = -speed_ball_y
+    if enemy.colliderect(ball):
+        speed_ball_y = -speed_ball_y
+        
+    
+
+    
+    
 
 
     screen.blit(background, (0,0))
-    screen.blit(player_skin, (x,y))
-    screen.blit(ball, (ball_x,ball_y))
 
+    pygame.draw.rect(screen, (255,0,0), Player)
+
+    pygame.draw.rect(screen, (255,0,0), enemy)
+    pygame.draw.rect(screen, (0,255,0), ball)
 
 
     pygame.display.update()
