@@ -7,6 +7,16 @@ from sys import exit
 
 pygame.init()
 
+def isColliding_Ball_Player(x,y):
+    pass
+
+
+
+
+
+
+
+
 x = 200
 y = 455
 
@@ -32,7 +42,7 @@ LEFT = False
 my_direction = LEFT
 
 speed = 10
-speed_x, speed_y = 13, 17
+speed_x, speed_y = 8, 8
 
 while True:
 
@@ -69,13 +79,18 @@ while True:
     if LEFT == True:
         x -= speed
     
-    if x > 552:
+    if x > 640 - player_skin.get_width():
         x = 552
     if x < 5:
         x = 5
 
     ball_x += speed_x
-    ball_y += speed_y 
+    ball_y += speed_y
+
+
+
+
+    
 
     if ball_x > 640 - ball.get_width():
         speed_x = -speed_x
@@ -94,7 +109,16 @@ while True:
         ball_y = 0
 
 
-        
+
+
+    if ball_y == 450:
+
+        ball_x += speed_x
+        speed_y = -speed_y
+        print("colisao")
+
+
+
 
     screen.blit(background, (0,0))
     screen.blit(player_skin, (x,y))
